@@ -1,0 +1,18 @@
+.picked {
+    background-color: gray;
+    text-decoration: line-through;
+    cursor: not-allowed;
+}
+
+.picked > td {
+    background-color: gray !important;
+}
+
+.player-table tbody tr:not(.picked):hover{
+    cursor: pointer;
+    background-color: lightgray;
+}
+
+.active-pick{
+    box-shadow: 0px 0px 15px 6px #9dc381;
+}
