@@ -22,123 +22,163 @@
             </tr>
             <tr>
               <td>QB</td>
-              <td>{{globalQbAvg}}</td>
+              <td>{{globalQbAvg | number : '1.2-2'}}</td>
             </tr>
             <tr>
               <td>RB</td>
-              <td>{{globalRbAvg}}</td>
+              <td>{{globalRbAvg | number : '1.2-2'}}</td>
             </tr>
             <tr>
               <td>WR</td>
-              <td>{{globalWrAvg}}</td>
+              <td>{{globalWrAvg | number : '1.2-2'}}</td>
             </tr>
             <tr>
               <td>TE</td>
-              <td>{{globalTeAvg}}</td>
+              <td>{{globalTeAvg | number : '1.2-2'}}</td>
+            </tr>
+            <tr>
+              <td>BE</td>
+              <td>{{globalBeAvg | number : '1.2-2'}}</td>
+            </tr>
+            <tr style="border-top: solid lightgray 1px;">
+              <td>Starter Avg</td>
+              <td>{{globalStarterAvg | number: '1.2-2'}}</td>
+            </tr>
+            <tr>
+              <td>Team Avg</td>
+              <td>{{globalStarterAvg + globalBeAvg | number: '1.2-2'}}</td>
             </tr>
           </table>
         </div>
       </div>
 
-      <div class="card text-center mt-2 mb-2" *ngFor="let team of allTeams" [class.active-pick]="team.Picking === true">
-        <div class="card-header">
-          {{team.OwnerName}}
-          <button class="btn btn-sm btn-primary" style="float:right" (click)="SetToPick(team.Id)">
-            Pick
-          </button>
-        </div>
-        <div class="card-body">
-          <table style="width: 100%;text-align: left;">
-            <tr>
-              <th>Pos</th>
-              <th>Player</th>
-              <th>Val</th>
-            </tr>
-            <tr *ngIf="team.QB" (click)="RemovePlayer(team.QB.Id, team.Id)">
-              <td>QB</td>
-              <td>{{team.QB.Name}}</td>
-              <td>{{team.QB.Val}}</td>
-            </tr>
-            <tr>
-              <td>
-                <hr>
-              </td>
-              <td>
-                <hr>
-              </td>
-              <td>
-                <hr>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <hr>
-              </td>
-              <td>
-                <hr>
-              </td>
-              <td>
-                {{team.QB.Val}}
-              </td>
-            </tr>
-            <tr *ngFor="let player of team.RBs" (click)="RemovePlayer(player.Id, team.Id)">
-              <td>RB</td>
-              <td>{{player.Name}}</td>
-              <td>{{player.Val}}</td>
-            </tr>
-            <tr>
+      <div style="height: 900px; overflow: auto;">
+        <div class="card text-center mt-2 mb-2" *ngFor="let team of allTeams" [class.active-pick]="team.Picking === true">
+          <div class="card-header" style="padding: 0px">
+            {{team.OwnerName}}
+            <button class="btn btn-sm btn-primary" style="float:right" (click)="SetToPick(team.Id)">
+              Pick
+            </button>
+          </div>
+          <div class="card-body">
+            <table style="width: 100%;text-align: left;">
+              <tr>
+                <th>Pos</th>
+                <th>Player</th>
+                <th>Val</th>
+              </tr>
+              <tr *ngFor="let player of team.QBs" (click)="RemovePlayer(player.Id, team.Id)">
+                <td>QB</td>
+                <td>{{player.Name}}</td>
+                <td>{{player.Val}}</td>
+              </tr>
+              <tr *ngIf="team.QBs.length > 0" style="border-top: solid 1px lightgray">
                 <td>
-                  <hr>
+                </td>
+                <td style="text-align: middle">
+                  Total | Diff
                 </td>
                 <td>
-                  <hr>
+                  {{GetTotalPositionPoints(team.QBs) | number: '1.2-2'}} |
+                  <span class="badge" [style.background-color]="_formattingService.getConditionalValueColor((GetTotalPositionPoints(team.QBs) - globalQbAvg), -10, 10, conditionalColorArray)">{{GetTotalPositionPoints(team.QBs)
+                    - globalQbAvg | number : '1.2-2'}}</span>
+                </td>
+              </tr>
+              <tr *ngFor="let player of team.RBs" (click)="RemovePlayer(player.Id, team.Id)">
+                <td>RB</td>
+                <td>{{player.Name}}</td>
+                <td>{{player.Val}}</td>
+              </tr>
+              <tr *ngIf="team.RBs.length > 0" style="border-top: solid 1px lightgray">
+                <td></td>
+                <td style="text-align: middle">
+                  Total | Diff
                 </td>
                 <td>
-                  <hr>
+                  {{GetTotalPositionPoints(team.RBs) | number : '1.2-2'}} |
+                  <span class="badge" [style.background-color]="_formattingService.getConditionalValueColor((GetTotalPositionPoints(team.RBs) - globalRbAvg), -10, 10, conditionalColorArray)">{{GetTotalPositionPoints(team.RBs)
+                    - globalRbAvg | number : '1.2-2'}}</span>
+                </td>
+              </tr>
+              <tr *ngFor="let player of team.WRs" (click)="RemovePlayer(player.Id, team.Id)">
+                <td>WR</td>
+                <td>{{player.Name}}</td>
+                <td>{{player.Val}}</td>
+              </tr>
+              <tr *ngIf="team.WRs.length > 0" style="border-top: solid 1px lightgray">
+                <td></td>
+                <td style="text-align: middle">
+                  Total | Diff
+                </td>
+                <td>
+                  {{GetTotalPositionPoints(team.WRs) | number : '1.2-2'}} |
+                  <span class="badge" [style.background-color]="_formattingService.getConditionalValueColor((GetTotalPositionPoints(team.WRs) - globalRbAvg), -10, 10, conditionalColorArray)">{{GetTotalPositionPoints(team.WRs)
+                    - globalWrAvg | number : '1.2-2'}}</span>
+                </td>
+              </tr>
+              <tr *ngFor="let player of team.TEs" (click)="RemovePlayer(player.Id, team.Id)">
+                <td>TE</td>
+                <td>{{player.Name}}</td>
+                <td>{{player.Val}}</td>
+              </tr>
+              <tr *ngIf="team.TEs.length > 0" style="border-top: solid 1px lightgray">
+                <td></td>
+                <td style="text-align: middle">
+                  Total | Diff
+                </td>
+                <td>
+                  {{GetTotalPositionPoints(team.TEs) | number : '1.2-2'}} |
+                  <span class="badge" [style.background-color]="_formattingService.getConditionalValueColor((GetTotalPositionPoints(team.TEs) - globalTeAvg), -10, 10, conditionalColorArray)">{{GetTotalPositionPoints(team.TEs)
+                    - globalTeAvg | number : '1.2-2'}}</span>
                 </td>
               </tr>
               <tr>
-                <td>
-                  <hr>
-                </td>
-                <td>
-                  <hr>
-                </td>
-                <td>
-                  {{GetTotalPositionPoints(team.RBs)}}
+                <td></td>
+                <td>Starter Total</td>
+                <td>{{GetTotalPositionPoints(team.RBs) + GetTotalPositionPoints(team.WRs) +
+                  GetTotalPositionPoints(team.TEs) + GetTotalPositionPoints(team.QBs) | number: '1.2-2'}} |
+                  <span class="badge" [style.background-color]="_formattingService.getConditionalValueColor(((GetTotalPositionPoints(team.RBs) + GetTotalPositionPoints(team.WRs) +
+                  GetTotalPositionPoints(team.TEs) + GetTotalPositionPoints(team.QBs)) - globalStarterAvg), -10, 10, conditionalColorArray)">{{GetTotalPositionPoints(team.RBs)
+                    + GetTotalPositionPoints(team.WRs) +
+                    GetTotalPositionPoints(team.TEs) + GetTotalPositionPoints(team.QBs)
+                    - globalStarterAvg | number : '1.2-2'}}</span>
                 </td>
               </tr>
-            <tr *ngFor="let player of team.WRs" (click)="RemovePlayer(player.Id, team.Id)">
-              <td>WR</td>
-              <td>{{player.Name}}</td>
-              <td>{{player.Val}}</td>
-            </tr>
-            <tr *ngFor="let player of team.TEs" (click)="RemovePlayer(player.Id, team.Id)">
-              <td>TE</td>
-              <td>{{player.Name}}</td>
-              <td>{{player.Val}}</td>
-            </tr>
-            <tr *ngIf="team.BE.length > 0">
-              <td>BE</td>
-              <td></td>
-              <td></td>
-            </tr>
-            <tr *ngFor="let player of team.BE" (click)="RemovePlayer(player.Id, team.Id)">
-              <td>{{player.Pos}}</td>
-              <td>{{player.Name}}</td>
-              <td>{{player.Val}}</td>
-            </tr>
-          </table>
-        </div>
-        <div class="card-footer text-muted">
+              <tr *ngIf="team.BE.length > 0">
+                <td>BE</td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr *ngFor="let player of team.BE" (click)="RemovePlayer(player.Id, team.Id)">
+                <td>{{player.Pos}}</td>
+                <td>{{player.Name}}</td>
+                <td>{{player.Val}}</td>
+              </tr>
+              <tr *ngIf="team.BE.length > 0" style="border-top: solid 1px lightgray">
+                <td></td>
+                <td style="text-align: middle">
+                  Total | Diff
+                </td>
+                <td>
+                  {{GetTotalPositionPoints(team.BE) | number : '1.2-2'}} |
+                  <span class="badge" [style.background-color]="_formattingService.getConditionalValueColor((GetTotalPositionPoints(team.BE) - globalBeAvg), -10, 10, conditionalColorArray)">{{GetTotalPositionPoints(team.BE)
+                    - globalBeAvg | number : '1.2-2'}}</span>
+                </td>
+              </tr>
+            </table>
+          </div>
+          <div class="card-footer text-muted">
+          </div>
         </div>
       </div>
+
     </div>
     <div class="col">
       <div class="input-group">
         <input type="text" class="form-control" (keyup)="SetNameFilter($event.target.value)">
         <div class="input-group-append">
-          <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true"
+            aria-expanded="false">
             <span *ngIf="playerFilter.Pos === ''">All</span>
             <span *ngIf="playerFilter.Pos !== ''">{{playerFilter.Pos}}</span>
           </button>
@@ -151,28 +191,31 @@
           </div>
         </div>
       </div>
-      <table style="width: 100%" class="player-table">
-        <thead>
-          <tr>
-            <th (click)="ToggleSortPlayersByName()">Player</th>
-            <th>Pos</th>
-            <th>Team</th>
-            <th (click)="ToggleSortPlayersByValue()">Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let player of allPlayersFiltered" (click)="PickPlayer(player.Id)" [class.picked]="player.Picked === true">
-            <td>
-              {{player.Name}}
-              <span class="badge badge-warning" *ngIf="SameBye(player) && player.Picked === false">Bye</span>
-              <span class="badge badge-dark" *ngIf="IsCuff(player) && player.Picked === false">Cuff</span>
-            </td>
-            <td>{{player.Pos}}</td>
-            <td>{{player.Team}}</td>
-            <td [style.background-color]="_formattingService.getConditionalValueColor(player.Val, minPlayerVal, maxPlayerVal, conditionalColorArray)">{{player.Val}}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div style="overflow: auto; height: 900px;">
+        <table style="width: 100%" class="player-table">
+          <thead>
+            <tr>
+              <th (click)="ToggleSortPlayersByName()">Player</th>
+              <th>Pos</th>
+              <th>Team</th>
+              <th (click)="ToggleSortPlayersByValue()">Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let player of allPlayersFiltered" (click)="PickPlayer(player.Id)" [class.picked]="player.Picked === true">
+              <td>
+                {{player.Name}}
+                <span class="badge badge-warning" *ngIf="SameBye(player) && player.Picked === false">Bye</span>
+                <span class="badge badge-dark" *ngIf="IsCuff(player) && player.Picked === false">Cuff</span>
+              </td>
+              <td>{{player.Pos}}</td>
+              <td>{{player.Team}}</td>
+              <td [style.background-color]="_formattingService.getConditionalValueColor(player.Val, minPlayerVal, maxPlayerVal, conditionalColorArray)">{{player.Val}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
     </div>
   </div>
 </div>

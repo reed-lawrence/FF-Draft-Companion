@@ -90,9 +90,9 @@ export class ConditionalFormattingService {
     //   console.log('here');
     // }
 
-    if (value === max) {
+    if (value === max || value > max) {
       return colorArray[colorArray.length - 1];
-    } else if (value == min) {
+    } else if (value === min) {
       return colorArray[0];
     }
 

@@ -214,6 +214,8 @@ export class AppComponent implements OnInit {
   globalRbAvg = 0;
   globalTeAvg = 0;
   globalWrAvg = 0;
+  globalStarterAvg = 0;
+  globalBeAvg = 0;
   maxPlayerVal = 0;
   minPlayerVal = 100;
   conditionalColorArray = [];
@@ -260,10 +262,10 @@ export class AppComponent implements OnInit {
     this.allPlayersFiltered = this.allPlayers.filter(p =>
       (p.Name.toLocaleLowerCase().indexOf(this.playerFilter.Name) !== -1
         && p.Pos.indexOf(this.playerFilter.Pos) !== -1)
-    )
+    );
   }
 
-  valueArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 3.2, 8.6, 5.3];
+  // valueArray = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 3.2, 8.6, 5.3];
   ngOnInit() {
     // this.AddTeam();
     // this.AddTeam();
@@ -296,7 +298,7 @@ export class AppComponent implements OnInit {
       Id: this.teamIdIndex,
       Picking: false,
       OwnerName: 'Player ' + (this.allTeams.length + 1),
-      QB: null,
+      QBs: [],
       RBs: [],
       WRs: [],
       TEs: [],
@@ -307,14 +309,14 @@ export class AppComponent implements OnInit {
 
   PickPlayer(pickedPlayerId: number) {
     const pickingTeam = this.allTeams[this.currentDraftingTeamIndex];
-    const teamIndex = this.allPlayers.findIndex(p => p.Id == pickedPlayerId);
+    const teamIndex = this.allPlayers.findIndex(p => p.Id === pickedPlayerId);
     const pickedPlayer = this.allPlayers[teamIndex];
 
     if (pickedPlayer.Picked === false) {
       this.allPlayers[teamIndex].Picked = true;
       if (pickedPlayer.Pos === 'QB') {
-        if (pickingTeam.QB === null) {
-          this.allTeams[this.currentDraftingTeamIndex].QB = pickedPlayer;
+        if (pickingTeam.QBs.length < 1) {
+          this.allTeams[this.currentDraftingTeamIndex].QBs.push(pickedPlayer);
         } else {
           this.allTeams[this.currentDraftingTeamIndex].BE.push(pickedPlayer);
         }
@@ -325,7 +327,7 @@ export class AppComponent implements OnInit {
           this.allTeams[this.currentDraftingTeamIndex].BE.push(pickedPlayer);
         }
       } else if (pickedPlayer.Pos === 'WR') {
-        if (pickingTeam.WRs.length < 2) {
+        if (pickingTeam.WRs.length < 3) {
           this.allTeams[this.currentDraftingTeamIndex].WRs.push(pickedPlayer);
         } else {
           this.allTeams[this.currentDraftingTeamIndex].BE.push(pickedPlayer);
@@ -344,14 +346,15 @@ export class AppComponent implements OnInit {
 
   RemovePlayer(pickedPlayerId: number, teamId: number) {
     const teamIndex = this.allTeams.findIndex(t => t.Id === teamId);
+    const qbIndex = this.allTeams[teamIndex].QBs.findIndex(p => p.Id === pickedPlayerId);
     const rbIndex = this.allTeams[teamIndex].RBs.findIndex(p => p.Id === pickedPlayerId);
     const wrIndex = this.allTeams[teamIndex].WRs.findIndex(p => p.Id === pickedPlayerId);
     const teIndex = this.allTeams[teamIndex].TEs.findIndex(p => p.Id === pickedPlayerId);
     const beIndex = this.allTeams[teamIndex].BE.findIndex(p => p.Id === pickedPlayerId);
     const playerIndex = this.allPlayers.findIndex(p => p.Id === pickedPlayerId);
 
-    if (this.allTeams[teamIndex].QB !== null && this.allTeams[teamIndex].QB.Id === pickedPlayerId) {
-      this.allTeams[teamIndex].QB = null;
+    if (qbIndex !== -1) {
+      this.allTeams[teamIndex].QBs.splice(qbIndex, 1);
     } else if (rbIndex !== -1) {
       this.allTeams[teamIndex].RBs.splice(rbIndex, 1);
     } else if (wrIndex !== -1) {
@@ -407,7 +410,8 @@ export class AppComponent implements OnInit {
       if (this.currentDraftingTeam.RBs.findIndex(p => p.Id === player.Id) !== -1) {
         return false;
       }
-      if (this.currentDraftingTeam.RBs.findIndex(p => (this.GetTeam(p.Team) === this.GetTeam(player.Team) && (p.Pos === player.Pos))) !== -1) {
+      if (this.currentDraftingTeam.RBs.findIndex(p =>
+        (this.GetTeam(p.Team) === this.GetTeam(player.Team) && (p.Pos === player.Pos))) !== -1) {
         return true;
       } else {
         return false;
@@ -416,8 +420,8 @@ export class AppComponent implements OnInit {
   }
 
   SameBye(player: Player): boolean {
-    if (player.Pos === 'QB' && this.currentDraftingTeam.QB !== null) {
-      if (this.GetBye(this.currentDraftingTeam.QB.Team) === this.GetBye(player.Team)) {
+    if (player.Pos === 'QB' && this.currentDraftingTeam.QBs.length > 0) {
+      if (this.currentDraftingTeam.QBs.findIndex(p => this.GetBye(p.Team) === this.GetBye(player.Team)) !== -1) {
         return true;
       } else {
         return false;
@@ -445,7 +449,7 @@ export class AppComponent implements OnInit {
 
   GetTotalPositionPoints(players: Player[]) {
     let sum = 0;
-    for(let i = 0; i < players.length; i++){
+    for (let i = 0; i < players.length; i++) {
       sum += players[i].Val;
     }
     return sum;
@@ -459,6 +463,7 @@ export class AppComponent implements OnInit {
   GetBye(playerTeamByeString: string): number {
     const slashIndex = playerTeamByeString.indexOf('/');
     // console.log(playerTeamByeString.substring(slashIndex + 1, playerTeamByeString.length));
+    // tslint:disable-next-line:radix
     return parseInt(playerTeamByeString.substring(slashIndex + 1, playerTeamByeString.length));
   }
 
@@ -478,7 +483,7 @@ export class AppComponent implements OnInit {
         if (a.Name > b.Name) {
           return 1;
         } else if (a.Name < b.Name) {
-          return -1
+          return -1;
         } else {
           return 0;
         }
@@ -489,7 +494,7 @@ export class AppComponent implements OnInit {
         if (a.Name > b.Name) {
           return -1;
         } else if (a.Name < b.Name) {
-          return 1
+          return 1;
         } else {
           return 0;
         }
@@ -504,11 +509,14 @@ export class AppComponent implements OnInit {
     let RBsum = 0;
     let WRsum = 0;
     let TEsum = 0;
+    let BEsum = 0;
 
     const numTeams = this.allTeams.length;
     for (let i = 0; i < this.allTeams.length; i++) {
-      if (this.allTeams[i].QB !== null) {
-        QBsum += this.allTeams[i].QB.Val;
+      if (this.allTeams[i].QBs.length > 0) {
+        for (let j = 0; j < this.allTeams[i].QBs.length; j++) {
+          QBsum += this.allTeams[i].QBs[j].Val;
+        }
       }
       if (this.allTeams[i].RBs.length > 0) {
         for (let j = 0; j < this.allTeams[i].RBs.length; j++) {
@@ -527,11 +535,19 @@ export class AppComponent implements OnInit {
           TEsum += this.allTeams[i].TEs[j].Val;
         }
       }
+
+      if (this.allTeams[i].BE.length > 0) {
+        for (let j = 0; j < this.allTeams[i].BE.length; j++) {
+          BEsum += this.allTeams[i].BE[j].Val;
+        }
+      }
     }
     this.globalQbAvg = QBsum / numTeams;
     this.globalRbAvg = RBsum / numTeams;
     this.globalWrAvg = WRsum / numTeams;
     this.globalTeAvg = TEsum / numTeams;
+    this.globalBeAvg = BEsum / numTeams;
+    this.globalStarterAvg = this.globalQbAvg + this.globalRbAvg + this.globalWrAvg + this.globalTeAvg;
   }
 
 

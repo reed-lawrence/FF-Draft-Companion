@@ -1,10 +1,10 @@
-import { Player } from "../player/player";
+import { Player } from '../player/player';
 
 export class Team {
     Id: number;
     Picking: boolean;
     OwnerName: string;
-    QB: Player;
+    QBs: Player[];
     RBs: Player[];
     WRs: Player[];
     TEs: Player[];
